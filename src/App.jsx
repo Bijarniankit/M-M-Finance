@@ -32,8 +32,14 @@ const NotFound = lazy(() => import('./pages/NotFound.jsx'))
 
 function PageFallback() {
   return (
-    <div className="min-h-[60vh] flex items-center justify-center">
-      <div className="w-10 h-10 rounded-full border-2 border-ink-200 border-t-primary-700 animate-spin" />
+    <div className="min-h-[60vh] flex flex-col items-center justify-center gap-4">
+      <div className="relative w-12 h-12">
+        <div className="absolute inset-0 rounded-full border-2 border-primary-100" />
+        <div className="absolute inset-0 rounded-full border-2 border-transparent border-t-primary-700 border-r-primary-700 animate-spin" />
+      </div>
+      <div className="text-[13px] font-semibold tracking-wide text-ink-500 animate-pulse">
+        M&amp;M Finance
+      </div>
     </div>
   )
 }

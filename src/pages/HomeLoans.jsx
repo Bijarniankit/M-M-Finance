@@ -74,8 +74,8 @@ export default function HomeLoans() {
       {/* WE DO THE HARD WORK — reverse split */}
       <Section tone="default">
         <div className="grid gap-10 lg:grid-cols-2 lg:items-center">
-          <Reveal delay={0.05}>
-            <div className="relative order-2 lg:order-1">
+          <Reveal delay={0.05} className="order-2 lg:order-1">
+            <div className="relative">
               <div className="relative h-72 sm:h-96 lg:h-112 rounded-2xl overflow-hidden shadow-lg ring-1 ring-ink-900/5">
                 <img
                   src="https://images.unsplash.com/photo-1573497019940-1c28c88b4f3e?auto=format&fit=crop&w=1400&q=80"
@@ -88,8 +88,8 @@ export default function HomeLoans() {
             </div>
           </Reveal>
 
-          <Reveal delay={0.1}>
-            <div className="order-1 lg:order-2">
+          <Reveal delay={0.1} className="order-1 lg:order-2">
+            <div>
               <span className="eyebrow">Hands-on broking</span>
               <h2 className="mt-3 text-ink-900">We do the hard work.</h2>
               <p className="mt-5 text-[15.5px] text-ink-700 leading-relaxed">

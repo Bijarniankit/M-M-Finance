@@ -217,6 +217,12 @@
     font-family: inherit;
   }
   .input::placeholder, .textarea::placeholder { color: var(--color-ink-400); }
+  /* Remove the up/down spinner on number inputs (calculator fields) */
+  .input[type="number"] { -moz-appearance: textfield; appearance: textfield; }
+  .input[type="number"]::-webkit-outer-spin-button,
+  .input[type="number"]::-webkit-inner-spin-button {
+    -webkit-appearance: none; appearance: none; margin: 0;
+  }
   .input:focus, .select:focus, .textarea:focus {
     outline: none; border-color: var(--color-primary-500);
     box-shadow: 0 0 0 4px color-mix(in srgb, var(--color-primary-500) 18%, transparent);

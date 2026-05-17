@@ -86,12 +86,12 @@ export default function Header() {
   }
 
   return (
-    <header className="sticky top-0 z-50">
+    <header className={`top-0 z-50 ${mobileOpen ? 'fixed inset-x-0' : 'sticky'}`}>
       {/* Top utility bar — desktop only */}
       <div className="hidden md:block bg-primary-700 text-white text-[12.5px]">
         <div className="container-full flex items-center justify-between h-9">
           <div className="text-white/85">
-            {siteInfo.acl} · ABN {siteInfo.abn}
+            {siteInfo.acl}
           </div>
           <div className="flex items-center gap-5">
             <a href={siteInfo.phoneHref} className="flex items-center gap-1.5 text-white hover:text-white/85 transition-colors">

@@ -6,21 +6,21 @@ export const siteInfo = {
   legal: 'M&M Financial Services Pty Ltd',
   tagline: 'Australian mortgage brokers who put your goals first.',
   abn: '12 345 678 901',
-  acl: 'Australian Credit Licence 123456',
-  phone: '1300 123 456',
-  phoneHref: 'tel:1300123456',
-  email: 'hello@mnmfinance.com.au',
-  emailHref: 'mailto:hello@mnmfinance.com.au',
-  address: 'Suite 12, Level 3, 100 George Street, Parramatta NSW 2150',
+  acl: 'Australian Credit Licence: 389087',
+  phone: '0430 016 442',
+  phoneHref: 'tel:0430016442',
+  email: 'pavan@mnmfinance.com.au',
+  emailHref: 'mailto:pavan@mnmfinance.com.au',
+  address: '5/101 Collins Road, Willeton, WA, 6155',
   hours: [
     { day: 'Monday – Friday', time: '9:00 AM – 6:00 PM' },
     { day: 'Saturday', time: '10:00 AM – 2:00 PM' },
     { day: 'Sunday', time: 'By appointment' },
   ],
   social: {
-    facebook: '#',
+    facebook: 'https://www.facebook.com/MnMFinance/',
     instagram: '#',
-    linkedin: '#',
+    linkedin: 'https://www.linkedin.com/in/pavan-kumar-7115aa73/',
   },
 }
 
@@ -236,29 +236,11 @@ export const testimonials = [
 
 export const team = [
   {
-    name: 'Manish Sharma',
+    name: 'Pawan Kumar',
     role: 'Founder & Principal Broker',
-    bio: 'With over 15 years in the Australian finance industry, Manish founded M&M to help everyday Australians cut through the complexity of home loans. He holds a Diploma of Finance & Mortgage Broking Management and is an accredited member of the MFAA.',
-    initials: 'MS',
-  },
-  {
-    name: 'Maya Kapoor',
-    role: 'Senior Broker — Investment & Commercial',
-    bio: 'Maya specialises in complex lending — investment portfolios, SMSF lending, and commercial finance. She brings a CPA background and a sharp eye for tax-efficient loan structures.',
-    initials: 'MK',
-  },
-  {
-    name: 'Ryan O’Connor',
-    role: 'Broker — First Home Buyers',
-    bio: 'Ryan is passionate about helping first home buyers understand grants, schemes and the home loan journey. He runs free monthly first-home-buyer education sessions across Western Sydney.',
-    initials: 'RO',
-  },
-  {
-    name: 'Linh Nguyen',
-    role: 'Client Care & Settlements Manager',
-    bio: 'Linh keeps every loan moving — from application to settlement. She is the first person clients call when they have a question, and she makes sure no detail is missed.',
-    initials: 'LN',
-  },
+    bio: 'With over 15 years in the Australian finance industry, Pawan founded M&M to help everyday Australians cut through the complexity of home loans. He holds a Diploma of Finance & Mortgage Broking Management and is an accredited member of the MFAA.',
+    initials: 'PK',
+  }
 ]
 
 export const stats = [

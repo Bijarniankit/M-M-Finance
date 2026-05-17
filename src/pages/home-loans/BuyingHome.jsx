@@ -78,7 +78,7 @@ export default function BuyingHome() {
       {/* WE'RE HERE TO HELP */}
       <Section tone="default">
         <div className="grid gap-10 lg:grid-cols-2 lg:items-center">
-          <Reveal delay={0.05}>
+          <Reveal delay={0.05} className="order-2 lg:order-1">
             <div className="relative">
               <div className="relative h-72 sm:h-96 lg:h-112 rounded-2xl overflow-hidden shadow-lg ring-1 ring-ink-900/5">
                 <img
@@ -90,7 +90,7 @@ export default function BuyingHome() {
               </div>
             </div>
           </Reveal>
-          <Reveal delay={0.1}>
+          <Reveal delay={0.1} className="order-1 lg:order-2">
             <div>
               <span className="eyebrow">A broker on your side</span>
               <h2 className="mt-3 text-ink-900">We’re here to help</h2>

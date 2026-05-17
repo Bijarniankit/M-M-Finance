@@ -3,15 +3,19 @@ import { ArrowRight, CheckCircle2, Star, Phone, Sparkles, Shield, ChevronRight, 
 import PageWrapper from '../components/utility/PageWrapper'
 import Section, { SectionHeading } from '../components/ui/Section'
 import Reveal from '../components/ui/Reveal'
+import Float from '../components/ui/Float'
+import FloatingBlob from '../components/ui/FloatingBlob'
+import AnimatedDivider from '../components/ui/AnimatedDivider'
 import Icon from '../components/ui/Icon'
 import { homeLoanHelpTopics, calculators, testimonials, lenders, processSteps, values, siteInfo } from '../data/site.js'
 import CTASection from '../components/ui/CTASection'
+import CountUp from '../components/ui/CountUp'
 
 const QUICK_STATS = [
-  { value: '1,500+', label: 'Happy clients' },
-  { value: '$850M+', label: 'Loans settled' },
-  { value: '40+',    label: 'Lenders on panel' },
-  { value: '15+',    label: 'Years experience' },
+  { value: 1500, suffix: '+',              label: 'Happy clients' },
+  { value: 850,  prefix: '$', suffix: 'M+', label: 'Loans settled' },
+  { value: 40,   suffix: '+',              label: 'Lenders on panel' },
+  { value: 15,   suffix: '+',              label: 'Years experience' },
 ]
 
 const HERO_MINI_STATS = [
@@ -31,8 +35,8 @@ export default function Home() {
         {/* Subtle background decoration */}
         <div className="absolute inset-0 pointer-events-none select-none" aria-hidden="true">
           <div className="absolute top-0 right-0 h-full w-[52%] bg-linear-to-l from-primary-50 via-primary-50/50 to-transparent" />
-          <div className="absolute -top-20 right-[20%] w-80 h-80 rounded-full bg-primary-100 opacity-35 blur-3xl" />
-          <div className="absolute bottom-0 right-[4%] w-56 h-56 rounded-full bg-accent-100 opacity-25 blur-3xl" />
+          <FloatingBlob className="absolute -top-20 right-[20%] w-80 h-80 rounded-full bg-primary-100 opacity-35 blur-3xl" duration={8} range={22} />
+          <FloatingBlob className="absolute bottom-0 right-[4%] w-56 h-56 rounded-full bg-accent-100 opacity-25 blur-3xl" duration={6.5} delay={0.6} range={16} />
         </div>
 
         <div className="container-x py-12 md:py-20 lg:py-28 relative">
@@ -44,7 +48,7 @@ export default function Home() {
                 <span className="eyebrow"><Sparkles size={12} /> Boutique mortgage brokers</span>
               </Reveal>
 
-              <Reveal delay={0.05}>
+              <Reveal delay={0.05} scale>
                 <h1 className="mt-4 text-ink-900">
                   The right home loan,<br className="hidden sm:block" />
                   <span className="text-primary-700"> without the bank-run-around.</span>
@@ -83,7 +87,7 @@ export default function Home() {
             {/* RIGHT — social proof card */}
             <Reveal delay={0.12}>
               {/* pb gives room for the floating bottom badge on sm/md viewports */}
-              <div className="relative pb-7 sm:pb-8 lg:pb-0">
+              <Float className="relative pb-7 sm:pb-8 lg:pb-0" y={9} duration={6}>
 
                 {/* Main card */}
                 <div className="bg-white rounded-2xl border border-ink-200 shadow-xl overflow-hidden">
@@ -151,7 +155,7 @@ export default function Home() {
                   </div>
                 </div>
 
-              </div>
+              </Float>
             </Reveal>
 
           </div>
@@ -180,7 +184,7 @@ export default function Home() {
               <Reveal key={s.label} delay={i * 0.06}>
                 <div className="text-center">
                   <div className="text-[26px] sm:text-[30px] md:text-[34px] font-bold text-white leading-none tracking-tight">
-                    {s.value}
+                    <CountUp value={s.value} prefix={s.prefix} suffix={s.suffix} />
                   </div>
                   <div className="mt-1.5 text-[12px] md:text-[13.5px] text-white/70 font-medium">{s.label}</div>
                 </div>
@@ -192,6 +196,7 @@ export default function Home() {
 
       {/* ── HOME LOANS ────────────────────────────────────────── */}
       <Section tone="default">
+        <AnimatedDivider className="mb-10 md:mb-14" />
         <SectionHeading
           eyebrow="How we can help"
           title="Home loans for every stage"

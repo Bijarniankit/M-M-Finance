@@ -6,6 +6,7 @@ import Reveal from '../components/ui/Reveal'
 import Icon from '../components/ui/Icon'
 import { siteInfo } from '../data/site.js'
 import CTASection from '../components/ui/CTASection'
+import CountUp from '../components/ui/CountUp'
 
 const PILLARS = [
   {
@@ -26,10 +27,10 @@ const PILLARS = [
 ]
 
 const QUICK_STATS = [
-  { value: '1,500+', label: 'Happy clients' },
-  { value: '$850M+', label: 'Loans settled' },
-  { value: '40+',    label: 'Lenders on panel' },
-  { value: '15+',    label: 'Years experience' },
+  { value: 1500, suffix: '+',              label: 'Happy clients' },
+  { value: 850,  prefix: '$', suffix: 'M+', label: 'Loans settled' },
+  { value: 40,   suffix: '+',              label: 'Lenders on panel' },
+  { value: 15,   suffix: '+',              label: 'Years experience' },
 ]
 
 const FOUNDER_CREDENTIALS = [
@@ -106,7 +107,9 @@ export default function About() {
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-6">
             {QUICK_STATS.map((s) => (
               <div key={s.label} className="text-center">
-                <div className="text-[1.875rem] sm:text-[2.25rem] font-bold text-white leading-none">{s.value}</div>
+                <div className="text-[1.875rem] sm:text-[2.25rem] font-bold text-white leading-none">
+                  <CountUp value={s.value} prefix={s.prefix} suffix={s.suffix} />
+                </div>
                 <div className="text-[12px] text-white/70 mt-1.5 font-medium tracking-widest uppercase">{s.label}</div>
               </div>
             ))}

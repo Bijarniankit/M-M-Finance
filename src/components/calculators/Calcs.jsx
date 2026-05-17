@@ -11,17 +11,28 @@ function monthlyPI(principal, annualRatePct, years) {
   return (principal * r) / (1 - Math.pow(1 + r, -n))
 }
 
-function NumberInput({ value, onChange, prefix, suffix, step = 1, min = 0, ...rest }) {
+// Number field: starts empty, shows the suggested value as a placeholder,
+// and stays clearable — clearing reports `undefined` (not 0) so the user can
+// always wipe the field and type a fresh number. Entry is required.
+function NumberInput({ value, onChange, prefix, suffix, step = 1, min = 0, placeholder, ...rest }) {
+  const isEmpty = value === undefined || value === null || value === ''
+  const ph =
+    placeholder === undefined || placeholder === null || placeholder === ''
+      ? undefined
+      : `e.g. ${Number(placeholder).toLocaleString('en-AU')}`
   return (
     <div className="relative">
       {prefix && <span className="absolute left-3 top-1/2 -translate-y-1/2 text-ink-500 text-sm">{prefix}</span>}
       <input
         type="number"
+        inputMode="decimal"
+        required
+        placeholder={ph}
         className={`input ${prefix ? 'pl-7' : ''} ${suffix ? 'pr-10' : ''}`}
-        value={value}
+        value={isEmpty ? '' : value}
         min={min}
         step={step}
-        onChange={(e) => onChange(e.target.value === '' ? 0 : Number(e.target.value))}
+        onChange={(e) => onChange(e.target.value === '' ? undefined : Number(e.target.value))}
         {...rest}
       />
       {suffix && <span className="absolute right-3 top-1/2 -translate-y-1/2 text-ink-500 text-sm">{suffix}</span>}
@@ -31,13 +42,13 @@ function NumberInput({ value, onChange, prefix, suffix, step = 1, min = 0, ...re
 
 /* ─────────────── 1. Borrowing Power ─────────────── */
 export function BorrowingPower() {
-  const [income, setIncome] = useState(120000)
-  const [partner, setPartner] = useState(0)
-  const [expenses, setExpenses] = useState(3500)
-  const [debts, setDebts] = useState(500)
+  const [income, setIncome] = useState()
+  const [partner, setPartner] = useState()
+  const [expenses, setExpenses] = useState()
+  const [debts, setDebts] = useState()
   const [rate, setRate] = useState(6.19)
   const [term, setTerm] = useState(30)
-  const [deps, setDeps] = useState(0)
+  const [deps, setDeps] = useState()
 
   const result = useMemo(() => {
     const totalIncomeMonthly = (income + partner) / 12 * 0.85
@@ -54,19 +65,19 @@ export function BorrowingPower() {
     <CalcShell intro="Estimate how much you could borrow using a typical Australian serviceability calculation, including the 3% stress buffer most lenders apply.">
       <div className="grid gap-5 md:grid-cols-2">
         <CalcField label="Your annual income (gross)" hint="Salary before tax">
-          <NumberInput value={income} onChange={setIncome} prefix="$" step={1000} />
+          <NumberInput value={income} onChange={setIncome} prefix="$" step={1000} placeholder={120000} />
         </CalcField>
         <CalcField label="Partner's annual income (optional)">
-          <NumberInput value={partner} onChange={setPartner} prefix="$" step={1000} />
+          <NumberInput value={partner} onChange={setPartner} prefix="$" step={1000} placeholder={0} />
         </CalcField>
         <CalcField label="Monthly living expenses" hint="Food, utilities, transport, insurance, etc.">
-          <NumberInput value={expenses} onChange={setExpenses} prefix="$" step={50} />
+          <NumberInput value={expenses} onChange={setExpenses} prefix="$" step={50} placeholder={3500} />
         </CalcField>
         <CalcField label="Existing monthly debt repayments" hint="Credit cards, car loans, personal loans">
-          <NumberInput value={debts} onChange={setDebts} prefix="$" step={50} />
+          <NumberInput value={debts} onChange={setDebts} prefix="$" step={50} placeholder={500} />
         </CalcField>
         <CalcField label="Number of dependants" hint="Lenders add ~$350/month per dependant">
-          <NumberInput value={deps} onChange={setDeps} step={1} />
+          <NumberInput value={deps} onChange={setDeps} step={1} placeholder={0} />
         </CalcField>
         <CalcField label="Loan term (years)">
           <Slider value={term} onChange={setTerm} min={10} max={30} valueLabel={`${term} years`} />
@@ -87,7 +98,7 @@ export function BorrowingPower() {
 
 /* ─────────────── 2. Loan Repayment ─────────────── */
 export function LoanRepayment() {
-  const [amount, setAmount] = useState(650000)
+  const [amount, setAmount] = useState()
   const [rate, setRate] = useState(6.19)
   const [term, setTerm] = useState(30)
   const [type, setType] = useState('PI')
@@ -106,7 +117,7 @@ export function LoanRepayment() {
     <CalcShell intro="Calculate weekly, fortnightly or monthly repayments — and see how much interest you'll pay over the life of the loan.">
       <div className="grid gap-5 md:grid-cols-2">
         <CalcField label="Loan amount">
-          <NumberInput value={amount} onChange={setAmount} prefix="$" step={1000} />
+          <NumberInput value={amount} onChange={setAmount} prefix="$" step={1000} placeholder={650000} />
         </CalcField>
         <CalcField label="Interest rate">
           <Slider value={rate} onChange={setRate} min={3} max={10} step={0.05} formatter={(v) => `${v.toFixed(2)}%`} />
@@ -139,7 +150,7 @@ export function LoanRepayment() {
 
 /* ─────────────── 3. Extra Repayments ─────────────── */
 export function ExtraRepayments() {
-  const [amount, setAmount] = useState(550000)
+  const [amount, setAmount] = useState()
   const [rate, setRate] = useState(6.19)
   const [term, setTerm] = useState(30)
   const [extra, setExtra] = useState(300)
@@ -171,7 +182,7 @@ export function ExtraRepayments() {
   return (
     <CalcShell intro="See how a small extra payment each month can take years off your loan and save tens of thousands in interest.">
       <div className="grid gap-5 md:grid-cols-2">
-        <CalcField label="Current loan balance"><NumberInput value={amount} onChange={setAmount} prefix="$" step={1000} /></CalcField>
+        <CalcField label="Current loan balance"><NumberInput value={amount} onChange={setAmount} prefix="$" step={1000} placeholder={550000} /></CalcField>
         <CalcField label="Interest rate">
           <Slider value={rate} onChange={setRate} min={3} max={10} step={0.05} formatter={(v) => `${v.toFixed(2)}%`} />
         </CalcField>
@@ -204,7 +215,7 @@ function calcStampDuty(price, state, fhb) {
   return Math.max(0, duty)
 }
 export function StampDuty() {
-  const [price, setPrice] = useState(800000)
+  const [price, setPrice] = useState()
   const [state, setState] = useState('NSW')
   const [fhb, setFhb] = useState(false)
   const duty = useMemo(() => calcStampDuty(price, state, fhb), [price, state, fhb])
@@ -215,7 +226,7 @@ export function StampDuty() {
   return (
     <CalcShell intro="An estimate of stamp duty plus government transfer and mortgage registration fees. Each state and territory uses slightly different rules — final figures should be confirmed before settlement.">
       <div className="grid gap-5 md:grid-cols-2">
-        <CalcField label="Property price"><NumberInput value={price} onChange={setPrice} prefix="$" step={5000} /></CalcField>
+        <CalcField label="Property price"><NumberInput value={price} onChange={setPrice} prefix="$" step={5000} placeholder={800000} /></CalcField>
         <CalcField label="State / Territory">
           <select className="select" value={state} onChange={(e) => setState(e.target.value)}>
             {STATES.map((s) => <option key={s} value={s}>{s}</option>)}
@@ -239,8 +250,8 @@ export function StampDuty() {
 
 /* ─────────────── 5. LMI Estimator ─────────────── */
 export function LMI() {
-  const [price, setPrice] = useState(800000)
-  const [deposit, setDeposit] = useState(80000)
+  const [price, setPrice] = useState()
+  const [deposit, setDeposit] = useState()
   const lvr = (price - deposit) / price * 100
   const loanAmount = price - deposit
   const lmi = useMemo(() => {
@@ -254,8 +265,8 @@ export function LMI() {
   return (
     <CalcShell intro="Lenders Mortgage Insurance is a one-off premium charged when your deposit is below 20% of the property value. It can usually be added to the loan rather than paid upfront.">
       <div className="grid gap-5 md:grid-cols-2">
-        <CalcField label="Property price"><NumberInput value={price} onChange={setPrice} prefix="$" step={5000} /></CalcField>
-        <CalcField label="Deposit"><NumberInput value={deposit} onChange={setDeposit} prefix="$" step={1000} /></CalcField>
+        <CalcField label="Property price"><NumberInput value={price} onChange={setPrice} prefix="$" step={5000} placeholder={800000} /></CalcField>
+        <CalcField label="Deposit"><NumberInput value={deposit} onChange={setDeposit} prefix="$" step={1000} placeholder={80000} /></CalcField>
       </div>
       <div className="mt-7 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
         <CalcResult label="Loan-to-value ratio" value={`${fmtNum(lvr)}%`} />
@@ -273,10 +284,10 @@ export function LMI() {
 
 /* ─────────────── 6. Loan Comparison ─────────────── */
 export function LoanComparison() {
-  const [amount, setAmount] = useState(600000)
+  const [amount, setAmount] = useState()
   const [term, setTerm] = useState(30)
-  const [a, setA] = useState({ rate: 6.19, fee: 395 })
-  const [b, setB] = useState({ rate: 5.89, fee: 0 })
+  const [a, setA] = useState({ rate: 6.19, fee: undefined })
+  const [b, setB] = useState({ rate: 5.89, fee: undefined })
 
   const calc = (opt) => {
     const monthly = monthlyPI(amount, opt.rate, term)
@@ -296,7 +307,7 @@ export function LoanComparison() {
             <CalcField label="Interest rate">
               <Slider value={a.rate} onChange={(v) => setA({ ...a, rate: v })} min={3} max={10} step={0.05} formatter={(v) => `${v.toFixed(2)}%`} />
             </CalcField>
-            <CalcField label="Annual fee"><NumberInput value={a.fee} onChange={(v) => setA({ ...a, fee: v })} prefix="$" /></CalcField>
+            <CalcField label="Annual fee"><NumberInput value={a.fee} onChange={(v) => setA({ ...a, fee: v })} prefix="$" placeholder={395} /></CalcField>
             <CalcResult label="Monthly repayment" value={fmt(A.monthly)} />
           </div>
         </div>
@@ -306,13 +317,13 @@ export function LoanComparison() {
             <CalcField label="Interest rate">
               <Slider value={b.rate} onChange={(v) => setB({ ...b, rate: v })} min={3} max={10} step={0.05} formatter={(v) => `${v.toFixed(2)}%`} />
             </CalcField>
-            <CalcField label="Annual fee"><NumberInput value={b.fee} onChange={(v) => setB({ ...b, fee: v })} prefix="$" /></CalcField>
+            <CalcField label="Annual fee"><NumberInput value={b.fee} onChange={(v) => setB({ ...b, fee: v })} prefix="$" placeholder={0} /></CalcField>
             <CalcResult label="Monthly repayment" value={fmt(B.monthly)} />
           </div>
         </div>
       </div>
       <div className="mt-6 grid gap-5 md:grid-cols-2">
-        <CalcField label="Loan amount"><NumberInput value={amount} onChange={setAmount} prefix="$" step={5000} /></CalcField>
+        <CalcField label="Loan amount"><NumberInput value={amount} onChange={setAmount} prefix="$" step={5000} placeholder={600000} /></CalcField>
         <CalcField label="Loan term">
           <Slider value={term} onChange={setTerm} min={5} max={30} valueLabel={`${term} yrs`} />
         </CalcField>
@@ -342,12 +353,12 @@ function auTax(income) {
   return { tax, medicare, total: tax + medicare, takeHome: income - tax - medicare }
 }
 export function IncomeTax() {
-  const [income, setIncome] = useState(95000)
+  const [income, setIncome] = useState()
   const r = auTax(income)
   return (
     <CalcShell intro="Estimate your Australian income tax for 2024–25 (stage 3 rates), including the standard 2% Medicare levy.">
       <CalcField label="Gross annual income">
-        <NumberInput value={income} onChange={setIncome} prefix="$" step={1000} />
+        <NumberInput value={income} onChange={setIncome} prefix="$" step={1000} placeholder={95000} />
       </CalcField>
       <div className="mt-7 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
         <CalcResult label="Income tax" value={fmt(r.tax)} />
@@ -361,9 +372,9 @@ export function IncomeTax() {
 
 /* ─────────────── 8. Savings Goal ─────────────── */
 export function SavingsGoal() {
-  const [goal, setGoal] = useState(80000)
-  const [start, setStart] = useState(15000)
-  const [monthly, setMonthly] = useState(800)
+  const [goal, setGoal] = useState()
+  const [start, setStart] = useState()
+  const [monthly, setMonthly] = useState()
   const [rate, setRate] = useState(4.5)
 
   const result = useMemo(() => {
@@ -380,9 +391,9 @@ export function SavingsGoal() {
   return (
     <CalcShell intro="Plan how long it'll take to reach your deposit or savings goal with regular contributions and compound interest.">
       <div className="grid gap-5 md:grid-cols-2">
-        <CalcField label="Savings goal"><NumberInput value={goal} onChange={setGoal} prefix="$" step={1000} /></CalcField>
-        <CalcField label="Starting balance"><NumberInput value={start} onChange={setStart} prefix="$" step={500} /></CalcField>
-        <CalcField label="Monthly contribution"><NumberInput value={monthly} onChange={setMonthly} prefix="$" step={50} /></CalcField>
+        <CalcField label="Savings goal"><NumberInput value={goal} onChange={setGoal} prefix="$" step={1000} placeholder={80000} /></CalcField>
+        <CalcField label="Starting balance"><NumberInput value={start} onChange={setStart} prefix="$" step={500} placeholder={15000} /></CalcField>
+        <CalcField label="Monthly contribution"><NumberInput value={monthly} onChange={setMonthly} prefix="$" step={50} placeholder={800} /></CalcField>
         <CalcField label="Interest rate (savings)">
           <Slider value={rate} onChange={setRate} min={0} max={8} step={0.1} formatter={(v) => `${v.toFixed(1)}%`} />
         </CalcField>
@@ -397,14 +408,14 @@ export function SavingsGoal() {
 
 /* ─────────────── 9. Budget Planner (50/30/20) ─────────────── */
 export function BudgetPlanner() {
-  const [income, setIncome] = useState(7500)
+  const [income, setIncome] = useState()
   const needs = income * 0.5
   const wants = income * 0.3
   const savings = income * 0.2
   return (
     <CalcShell intro="A simple monthly budget using the 50/30/20 rule — 50% needs, 30% wants, 20% savings & debt repayment.">
       <CalcField label="Net monthly income (after tax)">
-        <NumberInput value={income} onChange={setIncome} prefix="$" step={100} />
+        <NumberInput value={income} onChange={setIncome} prefix="$" step={100} placeholder={7500} />
       </CalcField>
       <div className="mt-7 grid gap-3 sm:grid-cols-3">
         <CalcResult label="Needs (50%)" value={fmt(needs)} />
@@ -425,7 +436,7 @@ export function BudgetPlanner() {
 
 /* ─────────────── 10. Offset Account ─────────────── */
 export function OffsetAccount() {
-  const [amount, setAmount] = useState(550000)
+  const [amount, setAmount] = useState()
   const [rate, setRate] = useState(6.19)
   const [term, setTerm] = useState(30)
   const [offset, setOffset] = useState(40000)
@@ -457,7 +468,7 @@ export function OffsetAccount() {
   return (
     <CalcShell intro="An offset account is a transaction account linked to your home loan. Every dollar in it reduces the interest you pay — without locking the money away.">
       <div className="grid gap-5 md:grid-cols-2">
-        <CalcField label="Loan balance"><NumberInput value={amount} onChange={setAmount} prefix="$" step={1000} /></CalcField>
+        <CalcField label="Loan balance"><NumberInput value={amount} onChange={setAmount} prefix="$" step={1000} placeholder={550000} /></CalcField>
         <CalcField label="Interest rate">
           <Slider value={rate} onChange={setRate} min={3} max={10} step={0.05} formatter={(v) => `${v.toFixed(2)}%`} />
         </CalcField>
@@ -479,7 +490,7 @@ export function OffsetAccount() {
 
 /* ─────────────── 11. Split Loan ─────────────── */
 export function SplitLoan() {
-  const [total, setTotal] = useState(700000)
+  const [total, setTotal] = useState()
   const [splitPct, setSplitPct] = useState(50)
   const [fixedRate, setFixedRate] = useState(5.99)
   const [varRate, setVarRate] = useState(6.19)
@@ -494,7 +505,7 @@ export function SplitLoan() {
   return (
     <CalcShell intro="Split your loan between fixed and variable rates to balance certainty with flexibility.">
       <div className="grid gap-5 md:grid-cols-2">
-        <CalcField label="Total loan amount"><NumberInput value={total} onChange={setTotal} prefix="$" step={1000} /></CalcField>
+        <CalcField label="Total loan amount"><NumberInput value={total} onChange={setTotal} prefix="$" step={1000} placeholder={700000} /></CalcField>
         <CalcField label="Fixed portion (%)">
           <Slider value={splitPct} onChange={setSplitPct} min={10} max={90} valueLabel={`${splitPct}%`} />
         </CalcField>
@@ -519,7 +530,7 @@ export function SplitLoan() {
 
 /* ─────────────── 12. Property Buying Costs ─────────────── */
 export function PropertyCosts() {
-  const [price, setPrice] = useState(850000)
+  const [price, setPrice] = useState()
   const [state, setState] = useState('NSW')
   const [fhb, setFhb] = useState(false)
   const stamp = calcStampDuty(price, state, fhb)
@@ -532,7 +543,7 @@ export function PropertyCosts() {
   return (
     <CalcShell intro="A realistic look at the upfront costs of buying a property — beyond just the deposit.">
       <div className="grid gap-5 md:grid-cols-2">
-        <CalcField label="Property price"><NumberInput value={price} onChange={setPrice} prefix="$" step={5000} /></CalcField>
+        <CalcField label="Property price"><NumberInput value={price} onChange={setPrice} prefix="$" step={5000} placeholder={850000} /></CalcField>
         <CalcField label="State / Territory">
           <select className="select" value={state} onChange={(e) => setState(e.target.value)}>
             {STATES.map((s) => <option key={s} value={s}>{s}</option>)}
@@ -562,11 +573,11 @@ export function PropertyCosts() {
 
 /* ─────────────── 13. Mortgage Switching ─────────────── */
 export function MortgageSwitching() {
-  const [balance, setBalance] = useState(500000)
+  const [balance, setBalance] = useState()
   const [currentRate, setCurrentRate] = useState(6.74)
   const [newRate, setNewRate] = useState(5.99)
   const [term, setTerm] = useState(25)
-  const [switchCost, setSwitchCost] = useState(1500)
+  const [switchCost, setSwitchCost] = useState()
 
   const result = useMemo(() => {
     const currentMonthly = monthlyPI(balance, currentRate, term)
@@ -581,7 +592,7 @@ export function MortgageSwitching() {
   return (
     <CalcShell intro="See how much you could save by switching to a lower rate lender. Factor in discharge fees, application fees and any break costs before deciding.">
       <div className="grid gap-5 md:grid-cols-2">
-        <CalcField label="Current loan balance"><NumberInput value={balance} onChange={setBalance} prefix="$" step={5000} /></CalcField>
+        <CalcField label="Current loan balance"><NumberInput value={balance} onChange={setBalance} prefix="$" step={5000} placeholder={500000} /></CalcField>
         <CalcField label="Current interest rate">
           <Slider value={currentRate} onChange={setCurrentRate} min={3} max={12} step={0.05} formatter={(v) => `${v.toFixed(2)}%`} />
         </CalcField>
@@ -592,7 +603,7 @@ export function MortgageSwitching() {
           <Slider value={term} onChange={setTerm} min={5} max={30} valueLabel={`${term} years`} />
         </CalcField>
         <CalcField label="Total switching costs (discharge + application fees)" hint="Typical range: $800–$2,000">
-          <NumberInput value={switchCost} onChange={setSwitchCost} prefix="$" step={100} />
+          <NumberInput value={switchCost} onChange={setSwitchCost} prefix="$" step={100} placeholder={1500} />
         </CalcField>
       </div>
       <div className="mt-7 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
@@ -609,11 +620,11 @@ export function MortgageSwitching() {
 
 /* ─────────────── 14. Comparison Rate ─────────────── */
 export function ComparisonRate() {
-  const [amount, setAmount] = useState(500000)
+  const [amount, setAmount] = useState()
   const [rate, setRate] = useState(5.99)
   const [term, setTerm] = useState(30)
-  const [estFee, setEstFee] = useState(600)
-  const [annualFee, setAnnualFee] = useState(395)
+  const [estFee, setEstFee] = useState()
+  const [annualFee, setAnnualFee] = useState()
 
   const result = useMemo(() => {
     const baseMonthly = monthlyPI(amount, rate, term)
@@ -634,15 +645,15 @@ export function ComparisonRate() {
   return (
     <CalcShell intro="The comparison rate combines the interest rate plus most fees into a single percentage, so you can compare loans on a like-for-like basis.">
       <div className="grid gap-5 md:grid-cols-2">
-        <CalcField label="Loan amount"><NumberInput value={amount} onChange={setAmount} prefix="$" step={5000} /></CalcField>
+        <CalcField label="Loan amount"><NumberInput value={amount} onChange={setAmount} prefix="$" step={5000} placeholder={500000} /></CalcField>
         <CalcField label="Advertised interest rate">
           <Slider value={rate} onChange={setRate} min={3} max={10} step={0.05} formatter={(v) => `${v.toFixed(2)}%`} />
         </CalcField>
         <CalcField label="Loan term">
           <Slider value={term} onChange={setTerm} min={5} max={30} valueLabel={`${term} years`} />
         </CalcField>
-        <CalcField label="Establishment / application fee"><NumberInput value={estFee} onChange={setEstFee} prefix="$" step={50} /></CalcField>
-        <CalcField label="Annual fee"><NumberInput value={annualFee} onChange={setAnnualFee} prefix="$" step={50} /></CalcField>
+        <CalcField label="Establishment / application fee"><NumberInput value={estFee} onChange={setEstFee} prefix="$" step={50} placeholder={600} /></CalcField>
+        <CalcField label="Annual fee"><NumberInput value={annualFee} onChange={setAnnualFee} prefix="$" step={50} placeholder={395} /></CalcField>
       </div>
       <div className="mt-7 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
         <CalcResult label="Comparison rate" value={`${result.compRate.toFixed(2)}%`} accent size="lg" />
@@ -658,7 +669,7 @@ export function ComparisonRate() {
 
 /* ─────────────── 15. How Long to Repay ─────────────── */
 export function HowLongToRepay() {
-  const [balance, setBalance] = useState(450000)
+  const [balance, setBalance] = useState()
   const [rate, setRate] = useState(6.19)
   const [monthly, setMonthly] = useState(2800)
 
@@ -682,7 +693,7 @@ export function HowLongToRepay() {
   return (
     <CalcShell intro="Enter your current balance, interest rate, and monthly repayment to see exactly when you'll be mortgage-free.">
       <div className="grid gap-5 md:grid-cols-2">
-        <CalcField label="Current loan balance"><NumberInput value={balance} onChange={setBalance} prefix="$" step={5000} /></CalcField>
+        <CalcField label="Current loan balance"><NumberInput value={balance} onChange={setBalance} prefix="$" step={5000} placeholder={450000} /></CalcField>
         <CalcField label="Interest rate">
           <Slider value={rate} onChange={setRate} min={3} max={12} step={0.05} formatter={(v) => `${v.toFixed(2)}%`} />
         </CalcField>
@@ -709,7 +720,7 @@ export function HowLongToRepay() {
 
 /* ─────────────── 16. Credit Card Calculator ─────────────── */
 export function CreditCard() {
-  const [balance, setBalance] = useState(8000)
+  const [balance, setBalance] = useState()
   const [apr, setApr] = useState(19.99)
   const [monthly, setMonthly] = useState(250)
 
@@ -733,7 +744,7 @@ export function CreditCard() {
   return (
     <CalcShell intro="Find out how long it will take to clear your credit card balance and how much interest you'll pay — then decide whether to increase your repayment.">
       <div className="grid gap-5 md:grid-cols-2">
-        <CalcField label="Credit card balance"><NumberInput value={balance} onChange={setBalance} prefix="$" step={100} /></CalcField>
+        <CalcField label="Credit card balance"><NumberInput value={balance} onChange={setBalance} prefix="$" step={100} placeholder={8000} /></CalcField>
         <CalcField label="Annual interest rate (APR)">
           <Slider value={apr} onChange={setApr} min={8} max={30} step={0.1} formatter={(v) => `${v.toFixed(1)}%`} />
         </CalcField>
@@ -760,7 +771,7 @@ export function CreditCard() {
 
 /* ─────────────── 17. Property Selling Cost ─────────────── */
 export function PropertySellingCost() {
-  const [price, setPrice] = useState(900000)
+  const [price, setPrice] = useState()
   const [commission, setCommission] = useState(2.0)
   const [state, setState] = useState('NSW')
 
@@ -778,7 +789,7 @@ export function PropertySellingCost() {
   return (
     <CalcShell intro="Selling a property involves more than just the agent's commission. This calculator shows a realistic breakdown of all costs you should budget for.">
       <div className="grid gap-5 md:grid-cols-2">
-        <CalcField label="Estimated sale price"><NumberInput value={price} onChange={setPrice} prefix="$" step={5000} /></CalcField>
+        <CalcField label="Estimated sale price"><NumberInput value={price} onChange={setPrice} prefix="$" step={5000} placeholder={900000} /></CalcField>
         <CalcField label="Agent commission rate" hint="Typical range: 1.5%–3.5% depending on state and agent">
           <Slider value={commission} onChange={setCommission} min={1} max={4} step={0.1} formatter={(v) => `${v.toFixed(1)}%`} />
         </CalcField>
@@ -802,7 +813,7 @@ export function PropertySellingCost() {
 
 /* ─────────────── 18. Lump Sum Repayment ─────────────── */
 export function LumpSumRepayment() {
-  const [balance, setBalance] = useState(500000)
+  const [balance, setBalance] = useState()
   const [rate, setRate] = useState(6.19)
   const [term, setTerm] = useState(25)
   const [lumpSum, setLumpSum] = useState(20000)
@@ -833,7 +844,7 @@ export function LumpSumRepayment() {
   return (
     <CalcShell intro="Making a one-off extra payment directly reduces your principal. This calculator shows exactly how much time and interest that saves over the life of your loan.">
       <div className="grid gap-5 md:grid-cols-2">
-        <CalcField label="Current loan balance"><NumberInput value={balance} onChange={setBalance} prefix="$" step={5000} /></CalcField>
+        <CalcField label="Current loan balance"><NumberInput value={balance} onChange={setBalance} prefix="$" step={5000} placeholder={500000} /></CalcField>
         <CalcField label="Interest rate">
           <Slider value={rate} onChange={setRate} min={3} max={10} step={0.05} formatter={(v) => `${v.toFixed(2)}%`} />
         </CalcField>
@@ -855,7 +866,7 @@ export function LumpSumRepayment() {
 
 /* ─────────────── 19. Interest Only Mortgage ─────────────── */
 export function InterestOnly() {
-  const [amount, setAmount] = useState(600000)
+  const [amount, setAmount] = useState()
   const [rate, setRate] = useState(6.19)
   const [ioPeriod, setIoPeriod] = useState(5)
   const [totalTerm, setTotalTerm] = useState(30)
@@ -876,7 +887,7 @@ export function InterestOnly() {
   return (
     <CalcShell intro="Interest-only loans have lower initial repayments but cost more over time because the principal doesn't reduce during the IO period.">
       <div className="grid gap-5 md:grid-cols-2">
-        <CalcField label="Loan amount"><NumberInput value={amount} onChange={setAmount} prefix="$" step={5000} /></CalcField>
+        <CalcField label="Loan amount"><NumberInput value={amount} onChange={setAmount} prefix="$" step={5000} placeholder={600000} /></CalcField>
         <CalcField label="Interest rate">
           <Slider value={rate} onChange={setRate} min={3} max={10} step={0.05} formatter={(v) => `${v.toFixed(2)}%`} />
         </CalcField>
@@ -901,7 +912,7 @@ export function InterestOnly() {
 
 /* ─────────────── 20. Business Loan Repayment ─────────────── */
 export function BusinessLoan() {
-  const [amount, setAmount] = useState(250000)
+  const [amount, setAmount] = useState()
   const [rate, setRate] = useState(7.5)
   const [term, setTerm] = useState(5)
   const [freq, setFreq] = useState('monthly')
@@ -918,7 +929,7 @@ export function BusinessLoan() {
   return (
     <CalcShell intro="Calculate repayments on a business loan, equipment finance or commercial facility. Rates for business lending are typically higher than residential.">
       <div className="grid gap-5 md:grid-cols-2">
-        <CalcField label="Loan amount"><NumberInput value={amount} onChange={setAmount} prefix="$" step={5000} /></CalcField>
+        <CalcField label="Loan amount"><NumberInput value={amount} onChange={setAmount} prefix="$" step={5000} placeholder={250000} /></CalcField>
         <CalcField label="Interest rate">
           <Slider value={rate} onChange={setRate} min={4} max={20} step={0.1} formatter={(v) => `${v.toFixed(1)}%`} />
         </CalcField>
@@ -944,7 +955,7 @@ export function BusinessLoan() {
 
 /* ─────────────── 21. Income Annualisation ─────────────── */
 export function IncomeAnnualisation() {
-  const [amount, setAmount] = useState(35)
+  const [amount, setAmount] = useState()
   const [freq, setFreq] = useState('hourly')
   const [hoursPerWeek, setHoursPerWeek] = useState(38)
 
@@ -976,7 +987,7 @@ export function IncomeAnnualisation() {
           </select>
         </CalcField>
         <CalcField label={freq === 'hourly' ? 'Hourly rate' : 'Income amount'}>
-          <NumberInput value={amount} onChange={setAmount} prefix="$" step={freq === 'hourly' ? 0.5 : 50} />
+          <NumberInput value={amount} onChange={setAmount} prefix="$" step={freq === 'hourly' ? 0.5 : 50} placeholder={freq === 'hourly' ? 35 : 1500} />
         </CalcField>
         {freq === 'hourly' && (
           <CalcField label="Hours per week">
@@ -996,7 +1007,7 @@ export function IncomeAnnualisation() {
 
 /* ─────────────── 22. Reverse Mortgage ─────────────── */
 export function ReverseMortgage() {
-  const [homeValue, setHomeValue] = useState(900000)
+  const [homeValue, setHomeValue] = useState()
   const [loanAmount, setLoanAmount] = useState(150000)
   const [rate, setRate] = useState(8.5)
   const [years, setYears] = useState(15)
@@ -1013,7 +1024,7 @@ export function ReverseMortgage() {
   return (
     <CalcShell intro="A reverse mortgage lets you access home equity without selling. Interest compounds and is added to the loan — the balance grows over time, reducing your remaining equity.">
       <div className="grid gap-5 md:grid-cols-2">
-        <CalcField label="Current home value"><NumberInput value={homeValue} onChange={setHomeValue} prefix="$" step={10000} /></CalcField>
+        <CalcField label="Current home value"><NumberInput value={homeValue} onChange={setHomeValue} prefix="$" step={10000} placeholder={900000} /></CalcField>
         <CalcField label="Loan amount drawn">
           <Slider value={loanAmount} onChange={setLoanAmount} min={10000} max={500000} step={5000} formatter={(v) => fmt(v)} />
         </CalcField>
@@ -1041,7 +1052,7 @@ export function ReverseMortgage() {
 
 /* ─────────────── 23. Introductory Rate Loan ─────────────── */
 export function IntroductoryRate() {
-  const [amount, setAmount] = useState(550000)
+  const [amount, setAmount] = useState()
   const [introRate, setIntroRate] = useState(5.49)
   const [standardRate, setStandardRate] = useState(6.74)
   const [introPeriod, setIntroPeriod] = useState(2)
@@ -1072,7 +1083,7 @@ export function IntroductoryRate() {
   return (
     <CalcShell intro="Honeymoon or introductory rates attract borrowers with a low rate upfront, then revert to a higher standard rate. This calculator compares the true total cost.">
       <div className="grid gap-5 md:grid-cols-2">
-        <CalcField label="Loan amount"><NumberInput value={amount} onChange={setAmount} prefix="$" step={5000} /></CalcField>
+        <CalcField label="Loan amount"><NumberInput value={amount} onChange={setAmount} prefix="$" step={5000} placeholder={550000} /></CalcField>
         <CalcField label="Introductory (honeymoon) rate">
           <Slider value={introRate} onChange={setIntroRate} min={2} max={8} step={0.05} formatter={(v) => `${v.toFixed(2)}%`} />
         </CalcField>
@@ -1100,10 +1111,10 @@ export function IntroductoryRate() {
 
 /* ─────────────── 24. Compound Interest ─────────────── */
 export function CompoundInterest() {
-  const [principal, setPrincipal] = useState(20000)
+  const [principal, setPrincipal] = useState()
   const [rate, setRate] = useState(5.0)
   const [years, setYears] = useState(10)
-  const [monthly, setMonthly] = useState(300)
+  const [monthly, setMonthly] = useState()
   const [compFreq, setCompFreq] = useState('monthly')
 
   const result = useMemo(() => {
@@ -1124,14 +1135,14 @@ export function CompoundInterest() {
   return (
     <CalcShell intro="Compound interest means you earn interest on your interest — a powerful effect over time. This calculator shows how your savings or investments grow with regular contributions.">
       <div className="grid gap-5 md:grid-cols-2">
-        <CalcField label="Starting amount (principal)"><NumberInput value={principal} onChange={setPrincipal} prefix="$" step={500} /></CalcField>
+        <CalcField label="Starting amount (principal)"><NumberInput value={principal} onChange={setPrincipal} prefix="$" step={500} placeholder={20000} /></CalcField>
         <CalcField label="Annual interest rate">
           <Slider value={rate} onChange={setRate} min={0.5} max={15} step={0.1} formatter={(v) => `${v.toFixed(1)}%`} />
         </CalcField>
         <CalcField label="Investment period">
           <Slider value={years} onChange={setYears} min={1} max={40} valueLabel={`${years} years`} />
         </CalcField>
-        <CalcField label="Monthly contribution"><NumberInput value={monthly} onChange={setMonthly} prefix="$" step={50} /></CalcField>
+        <CalcField label="Monthly contribution"><NumberInput value={monthly} onChange={setMonthly} prefix="$" step={50} placeholder={300} /></CalcField>
         <CalcField label="Compounding frequency">
           <select className="select" value={compFreq} onChange={(e) => setCompFreq(e.target.value)}>
             <option value="daily">Daily</option>
@@ -1156,10 +1167,10 @@ export function CompoundInterest() {
 
 /* ─────────────── F1. Buy Your First Home ─────────────── */
 export function BuyFirstHome() {
-  const [price, setPrice] = useState(700000)
-  const [income, setIncome] = useState(95000)
-  const [partner, setPartner] = useState(0)
-  const [deposit, setDeposit] = useState(70000)
+  const [price, setPrice] = useState()
+  const [income, setIncome] = useState()
+  const [partner, setPartner] = useState()
+  const [deposit, setDeposit] = useState()
   const [state, setState] = useState('NSW')
   const [rate, setRate] = useState(6.19)
 
@@ -1181,15 +1192,15 @@ export function BuyFirstHome() {
   return (
     <CalcShell intro="An all-in-one calculator designed for first home buyers. See your estimated borrowing power, how much stamp duty you'll pay (with FHB concession), upfront costs, and monthly repayments — all in one place.">
       <div className="grid gap-5 md:grid-cols-2">
-        <CalcField label="Target property price"><NumberInput value={price} onChange={setPrice} prefix="$" step={5000} /></CalcField>
+        <CalcField label="Target property price"><NumberInput value={price} onChange={setPrice} prefix="$" step={5000} placeholder={700000} /></CalcField>
         <CalcField label="State / Territory">
           <select className="select" value={state} onChange={(e) => setState(e.target.value)}>
             {STATES.map((s) => <option key={s} value={s}>{s}</option>)}
           </select>
         </CalcField>
-        <CalcField label="Your annual income (gross)"><NumberInput value={income} onChange={setIncome} prefix="$" step={1000} /></CalcField>
-        <CalcField label="Partner's annual income (optional)"><NumberInput value={partner} onChange={setPartner} prefix="$" step={1000} /></CalcField>
-        <CalcField label="Deposit saved"><NumberInput value={deposit} onChange={setDeposit} prefix="$" step={1000} /></CalcField>
+        <CalcField label="Your annual income (gross)"><NumberInput value={income} onChange={setIncome} prefix="$" step={1000} placeholder={95000} /></CalcField>
+        <CalcField label="Partner's annual income (optional)"><NumberInput value={partner} onChange={setPartner} prefix="$" step={1000} placeholder={0} /></CalcField>
+        <CalcField label="Deposit saved"><NumberInput value={deposit} onChange={setDeposit} prefix="$" step={1000} placeholder={70000} /></CalcField>
         <CalcField label="Interest rate">
           <Slider value={rate} onChange={setRate} min={3} max={10} step={0.05} formatter={(v) => `${v.toFixed(2)}%`} />
         </CalcField>
@@ -1213,7 +1224,7 @@ export function BuyFirstHome() {
 
 /* ─────────────── F2. Refinance and Save ─────────────── */
 export function RefinanceSave() {
-  const [balance, setBalance] = useState(500000)
+  const [balance, setBalance] = useState()
   const [currentRate, setCurrentRate] = useState(6.74)
   const [newRate, setNewRate] = useState(5.99)
   const [remainingYears, setRemainingYears] = useState(25)
@@ -1231,7 +1242,7 @@ export function RefinanceSave() {
   return (
     <CalcShell intro="Refinancing to a lower rate can save you thousands over the life of your loan. This calculator shows your potential savings before factoring in any switching costs — speak to a broker to get the full picture.">
       <div className="grid gap-5 md:grid-cols-2">
-        <CalcField label="Current loan balance"><NumberInput value={balance} onChange={setBalance} prefix="$" step={5000} /></CalcField>
+        <CalcField label="Current loan balance"><NumberInput value={balance} onChange={setBalance} prefix="$" step={5000} placeholder={500000} /></CalcField>
         <CalcField label="Current interest rate">
           <Slider value={currentRate} onChange={setCurrentRate} min={3} max={12} step={0.05} formatter={(v) => `${v.toFixed(2)}%`} />
         </CalcField>
@@ -1256,9 +1267,9 @@ export function RefinanceSave() {
 
 /* ─────────────── F3. Property Investment Planning ─────────────── */
 export function PropertyInvestment() {
-  const [propertyValue, setPropertyValue] = useState(750000)
-  const [weeklyRent, setWeeklyRent] = useState(650)
-  const [loanAmount, setLoanAmount] = useState(600000)
+  const [propertyValue, setPropertyValue] = useState()
+  const [weeklyRent, setWeeklyRent] = useState()
+  const [loanAmount, setLoanAmount] = useState()
   const [rate, setRate] = useState(6.49)
   const [isIO, setIsIO] = useState(true)
   const [expensesPct, setExpensesPct] = useState(25)
@@ -1278,9 +1289,9 @@ export function PropertyInvestment() {
   return (
     <CalcShell intro="Understand the rental yield and cash flow of an investment property before you commit. Factors in realistic ongoing expenses to show whether your property is positively or negatively geared.">
       <div className="grid gap-5 md:grid-cols-2">
-        <CalcField label="Property value"><NumberInput value={propertyValue} onChange={setPropertyValue} prefix="$" step={10000} /></CalcField>
-        <CalcField label="Weekly rental income"><NumberInput value={weeklyRent} onChange={setWeeklyRent} prefix="$" step={25} /></CalcField>
-        <CalcField label="Loan amount"><NumberInput value={loanAmount} onChange={setLoanAmount} prefix="$" step={5000} /></CalcField>
+        <CalcField label="Property value"><NumberInput value={propertyValue} onChange={setPropertyValue} prefix="$" step={10000} placeholder={750000} /></CalcField>
+        <CalcField label="Weekly rental income"><NumberInput value={weeklyRent} onChange={setWeeklyRent} prefix="$" step={25} placeholder={650} /></CalcField>
+        <CalcField label="Loan amount"><NumberInput value={loanAmount} onChange={setLoanAmount} prefix="$" step={5000} placeholder={600000} /></CalcField>
         <CalcField label="Interest rate">
           <Slider value={rate} onChange={setRate} min={3} max={12} step={0.05} formatter={(v) => `${v.toFixed(2)}%`} />
         </CalcField>
@@ -1313,11 +1324,11 @@ export function PropertyInvestment() {
 
 /* ─────────────── F4. How Much Can You Borrow? ─────────────── */
 export function HowMuchBorrow() {
-  const [income, setIncome] = useState(100000)
-  const [partner, setPartner] = useState(0)
-  const [expenses, setExpenses] = useState(3000)
-  const [debts, setDebts] = useState(0)
-  const [deps, setDeps] = useState(0)
+  const [income, setIncome] = useState()
+  const [partner, setPartner] = useState()
+  const [expenses, setExpenses] = useState()
+  const [debts, setDebts] = useState()
+  const [deps, setDeps] = useState()
   const [rate, setRate] = useState(6.19)
 
   const result = useMemo(() => {
@@ -1343,19 +1354,19 @@ export function HowMuchBorrow() {
     <CalcShell intro="A plain-English answer to one of the most common questions we get. Enter your income and expenses to see your estimated borrowing range — calculated using the same serviceability principles Australian lenders apply.">
       <div className="grid gap-5 md:grid-cols-2">
         <CalcField label="Your annual income (gross)" hint="Salary before tax">
-          <NumberInput value={income} onChange={setIncome} prefix="$" step={1000} />
+          <NumberInput value={income} onChange={setIncome} prefix="$" step={1000} placeholder={100000} />
         </CalcField>
         <CalcField label="Partner's annual income (optional)">
-          <NumberInput value={partner} onChange={setPartner} prefix="$" step={1000} />
+          <NumberInput value={partner} onChange={setPartner} prefix="$" step={1000} placeholder={0} />
         </CalcField>
         <CalcField label="Monthly living expenses" hint="Food, utilities, transport, insurance">
-          <NumberInput value={expenses} onChange={setExpenses} prefix="$" step={100} />
+          <NumberInput value={expenses} onChange={setExpenses} prefix="$" step={100} placeholder={3000} />
         </CalcField>
         <CalcField label="Existing monthly debt repayments" hint="Car loans, credit cards, personal loans">
-          <NumberInput value={debts} onChange={setDebts} prefix="$" step={50} />
+          <NumberInput value={debts} onChange={setDebts} prefix="$" step={50} placeholder={0} />
         </CalcField>
         <CalcField label="Number of dependants">
-          <NumberInput value={deps} onChange={setDeps} step={1} min={0} />
+          <NumberInput value={deps} onChange={setDeps} step={1} min={0} placeholder={0} />
         </CalcField>
         <CalcField label="Current interest rate">
           <Slider value={rate} onChange={setRate} min={3} max={10} step={0.05} formatter={(v) => `${v.toFixed(2)}%`} />
